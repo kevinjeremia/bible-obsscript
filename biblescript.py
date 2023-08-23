@@ -21,3 +21,11 @@ import obspython as obs
 import requests
 
 # ------------------------------------------------------------
+
+def script_description():
+    return 
+"""Fill the book and chapter to prompt the list of the verses.
+
+By KevinJP"""
+
+
