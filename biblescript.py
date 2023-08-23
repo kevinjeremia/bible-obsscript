@@ -24,7 +24,8 @@ import requests
 
 # ------------------------------------------------------------
 
-# Parse the list of the book in the Bible from the url below
+# Fetch the list of the book in the Bible from the url below
+# and will return list of the book
 def parse_book() -> list:
     url = "https://alkitab.sabda.org/advanced.php"
     response = requests.get(url)
@@ -32,12 +33,15 @@ def parse_book() -> list:
 
     soup = BeautifulSoup(html_content, "html.parser")
     form_bible = soup.find("select", {"name": "book"})
-    books = form_bible.contents
+    # Fetch the <option> tag
+    books = form_bible.contents 
+    # Remove "\n" from the list 
     books_updated = [book for book in books if book != "\n"]
 
     list_book = []
     for book in books_updated:
         list_book += book.contents
+    # Remove all the whitespaces because of the AlkitabAPI is sensitive to whitespaces 
     list_book = [book.replace(' ', '') if ' ' in book else book for book in list_book]        
     
     return list_book
