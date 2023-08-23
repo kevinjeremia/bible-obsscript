@@ -18,14 +18,78 @@
 # A script to show Bible scriptures that is fetched from Alkitab-API (by sonnylazuardi)
 
 import obspython as obs
+from bs4 import BeautifulSoup
 import requests
+
 
 # ------------------------------------------------------------
 
-def script_description():
-    return 
-"""Fill the book and chapter to prompt the list of the verses.
+# Parse the list of the book in the Bible from the url below
+def parse_book() -> list:
+    url = "https://alkitab.sabda.org/advanced.php"
+    response = requests.get(url)
+    html_content = response.content
 
+    soup = BeautifulSoup(html_content, "html.parser")
+    form_bible = soup.find("select", {"name": "book"})
+    books = form_bible.contents
+    books_updated = [book for book in books if book != "\n"]
+
+    list_book = []
+    for book in books_updated:
+        list_book += book.contents
+    list_book = [book.replace(' ', '') if ' ' in book else book for book in list_book]        
+    
+    return list_book
+
+# UI
+
+# Description of the script
+def script_description():
+    return """A script to show Bible scriptures.
 By KevinJP"""
 
 
+def script_properties():
+    props = obs.obs_properties_create()
+    
+    # Add a placeholder list of bible version
+    versions_ph = obs.obs_properties_add_list(
+        props,
+        "bibleversion",
+        "Bible Version",
+        obs.OBS_COMBO_TYPE_EDITABLE,
+        obs.OBS_COMBO_FORMAT_STRING
+    )
+    
+    # Add bible version to placeholder list by iterating versions list
+    versions = ["tb", "nkjv", "niv", "net"]
+    
+    for version in versions:
+        name = ""
+        if version == "tb":
+            name = "Terjemahan Baru (TB)"
+        elif version == "nkjv":
+            name = "New King James Version (NKJV)"
+        elif version == "niv":
+            name = "New International Version (NIV)"
+        elif version == "net":
+            name = "New English Translation (NET)"
+        
+        obs.obs_property_list_add_string(versions_ph, name, version)
+    
+    # Add a placeholder list for the book of the bible
+    book_ph = obs.obs_properties_add_list(
+        props,
+        "book",
+        "Book",
+        obs.OBS_COMBO_TYPE_EDITABLE,
+        obs.OBS_COMBO_FORMAT_STRING
+    )
+    
+    # Add book to the placeholder by iterating book_list
+    book_list = parse_book()
+    for book in book_list:
+        obs.obs_property_list_add_string(book_ph, book, book)
+    
+    return props

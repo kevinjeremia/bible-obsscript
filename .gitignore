@@ -1,2 +1,5 @@
 # script for fetching json from alkitab-api
 req.py
+
+# fetch passage
+pas.py
