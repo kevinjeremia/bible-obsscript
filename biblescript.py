@@ -46,6 +46,56 @@ def parse_book() -> list:
     
     return list_book
 
+# Fetch the list of total chapter in every book
+# def fetch_chapter() -> list:
+#     url = "https://www.biblememorygoal.com/how-many-chapters-verses-in-the-bible/"
+#     response = requests.get(url)
+#     html_content = response.content
+
+#     soup = BeautifulSoup(html_content, "html.parser")
+    
+#     old_testam = soup.select("tbody")[0]
+#     new_testam = soup.select("tbody")[-1]
+#     chapter_list = []
+
+#     for tr in old_testam.find_all('tr'):
+#         num_of_chap = tr.find_all("td")[1].text
+#         if num_of_chap == '':
+#             continue
+#         num_of_chapt = int(num_of_chap)
+#         chapter_list.append(num_of_chapt)
+
+#     for tr in new_testam.find_all('tr'):
+#         num_of_chap = tr.find_all("td")[1].text
+#         if num_of_chap == '':
+#             continue
+#         num_of_chapt = int(num_of_chap)
+#         chapter_list.append(num_of_chapt)
+        
+#     return chapter_list
+
+# Callback function when the book is selected
+# def book_changed(props, prop, settings):
+#     selected_book = obs.obs_data_get_string(settings, "book")
+#     if (selected_book == ""):
+#         selected_book = "Kejadian"
+        
+#     index_sb = book_list.index(selected_book)
+    
+#     chapter_list = fetch_chapter()
+#     chapter_prop = obs.obs_properties_get(props,"chapter")
+    
+#     # Get the total chapter of selected book
+#     chapter_of_sb = chapter_list[index_sb]
+#     # Set the max of total chapter that can be selected
+#     obs.obs_property_int_set_limits(chapter_prop, 1, chapter_of_sb, 1)
+    
+#     return True
+
+
+
+# ------------------------------------------------------------
+
 # UI
 
 # Description of the script
@@ -55,13 +105,43 @@ By KevinJP"""
 
 
 def script_properties():
+    # global book_list
+    
     props = obs.obs_properties_create()
     
+    # Add input field for Text Source and Title Text Source
+    text_source = obs.obs_properties_add_list(
+        props,
+        "textsource",
+        "Text Source",
+        obs.OBS_COMBO_TYPE_EDITABLE,
+        obs.OBS_COMBO_FORMAT_STRING
+    )
+    title_source = obs.obs_properties_add_list(
+        props,
+        "titlesource",
+        "Title Source",
+        obs.OBS_COMBO_TYPE_EDITABLE,
+        obs.OBS_COMBO_FORMAT_STRING
+    )	
+    sources = obs.obs_enum_sources()
+    if sources is not None:
+        n = list()
+        for source in sources:
+            source_id = obs.obs_source_get_unversioned_id(source)
+            if source_id == "text_gdiplus" or source_id == "text_ft2_source":
+                n.append(obs.obs_source_get_name(source))
+        n.sort()
+        for name in n:
+                obs.obs_property_list_add_string(text_source, name, name)
+                obs.obs_property_list_add_string(title_source, name, name)				
+    obs.source_list_release(sources)
+  
     # Add a placeholder list of bible version
     versions_ph = obs.obs_properties_add_list(
         props,
         "bibleversion",
-        "Bible Version",
+        "Bible Version:",
         obs.OBS_COMBO_TYPE_EDITABLE,
         obs.OBS_COMBO_FORMAT_STRING
     )
@@ -88,14 +168,39 @@ def script_properties():
     book_ph = obs.obs_properties_add_list(
         props,
         "book",
-        "Book",
+        "Book:",
         obs.OBS_COMBO_TYPE_EDITABLE,
         obs.OBS_COMBO_FORMAT_STRING
     )
     
-    # Add book to the placeholder by iterating book_list
+    # Add list of book to the placeholder by iterating book_list
     book_list = parse_book()
     for book in book_list:
         obs.obs_property_list_add_string(book_ph, book, book)
+    
+    # Call the callback function when the book is selected
+    #obs.obs_property_set_modified_callback(book_ph, book_changed)
+    
+    # Add a input field for the chapter 
+    chapter_ph = obs.obs_properties_add_int(
+        props,
+        "chapter",
+        "Chapter:",
+        1, # min
+        150, # max
+        1 # iter
+    )
+    
+    
+    # Add a input field for the verse
+    # verse_ph = obs.obs_properties_add_int(
+    #     props,
+    #     "verse",
+    #     "Chapter:",
+    #     1, # min
+    #     176, # max
+    #     1 # iter
+    # )
+    
     
     return props
