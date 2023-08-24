@@ -1,5 +1,6 @@
-# script for fetching json from alkitab-api
-req.py
+# byte-compiled
+__pycache__/
 
-# fetch passage
+# fetching script
+req.py
 pas.py
