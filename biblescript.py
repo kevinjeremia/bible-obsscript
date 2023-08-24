@@ -67,7 +67,7 @@ def script_properties():
     )
     
     # Add bible version to placeholder list by iterating versions list
-    versions = ["tb", "nkjv", "niv", "net"]
+    versions = ["tb", "nkjv", "niv", "net", "av"]
     
     for version in versions:
         name = ""
@@ -79,6 +79,8 @@ def script_properties():
             name = "New International Version (NIV)"
         elif version == "net":
             name = "New English Translation (NET)"
+        elif version == "av":
+            name = "Authorized Version (AV)"
         
         obs.obs_property_list_add_string(versions_ph, name, version)
     
