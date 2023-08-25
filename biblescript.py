@@ -40,7 +40,7 @@ def script_update(settings):
     selected_book = obs.obs_data_get_string(settings, "book")
     selected_chapter = obs.obs_data_get_int(settings, "chapter")
     selected_verse = obs.obs_data_get_int(settings, "verse")
-
+    
 # Fetch the list of the book in the Bible from the url below
 # and will return list of the book
 def parse_book() -> list:
@@ -115,6 +115,7 @@ def get_json_scripture(version,book,chapter):
 def get_verse():
     global scripture
     global scripture_loaded
+    global selected_verse
     
     scripture_loaded = []
     
