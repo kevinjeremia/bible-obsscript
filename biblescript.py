@@ -24,6 +24,23 @@ import requests
 
 # ------------------------------------------------------------
 
+# Script that will be called during the startup
+def script_load(settings):
+    global script_settings
+    script_settings = settings
+    
+# Function that will be called when the script's settings have been changed
+def script_update(settings):
+    global selected_version
+    global selected_book
+    global selected_chapter
+    global selected_verse
+    
+    selected_version = obs.obs_data_get_string(settings, "bibleversion")
+    selected_book = obs.obs_data_get_string(settings, "book")
+    selected_chapter = obs.obs_data_get_int(settings, "chapter")
+    selected_verse = obs.obs_data_get_int(settings, "verse")
+
 # Fetch the list of the book in the Bible from the url below
 # and will return list of the book
 def parse_book() -> list:
@@ -46,10 +63,83 @@ def parse_book() -> list:
     
     return list_book
 
-# When Load Verses button is pressed, function get_verse will be called
-# and list of verses will be added to verse_ph, and json from get_verse will be processed
-def load_pressed():
-    TODO()
+# Fetch the json of the selected chapter
+def get_json_scripture(version,book,chapter):
+    
+    # Define the GraphQL query
+    query = f"""
+    {{
+    passages(version: {version}, book: "{book}", chapter: {chapter}) {{
+        verses {{
+            book
+            chapter
+            verse
+            type
+            content
+            book
+        }}
+    }}
+    }}
+    """
+
+    # Define the API endpoint URL
+    url = 'https://bible.sonnylab.com/'
+
+    # Set the headers and query variables if needed
+    headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Connection': 'keep-alive',
+        'DNT': '1',
+        'Origin': 'https://bible.sonnylab.com'
+    }
+
+    # Create the request payload
+    data = {
+        "query": query
+    }
+    
+    # Make the POST request to the GraphQL API
+    response = requests.post(url, json=data, headers=headers)
+
+    # Check if the request was successful
+    if response.status_code == 200:
+        json_data = response.json()
+        verses = json_data["data"]["passages"]["verses"]
+        return verses
+    else:
+        print("Request failed with status code:", response.status_code)
+        print(response.text)
+    
+# Add the loaded verse to the dedicated list
+def get_verse():
+    global scripture
+    global scripture_loaded
+    
+    scripture_loaded = []
+    
+    for verse in scripture:
+        if verse["content"] == "content"
+            scripture_loaded.append(verse)
+    
+    if len(scripture_loaded) > selected_verse:
+        selected_verse = len(scripture_loaded)
+    
+# When Load Verses button is pressed, function get_json_scripture will be called
+
+def load_pressed(props, prop):
+    global scripture
+    global selected_verse
+    
+    scripture = get_json_scripture(selected_version,selected_book,selected_chapter)
+    scripture.pop()
+    get_verse()
+    
+    
+    
+    
+    
+    
 
 # ------------------------------------------------------------
 
@@ -58,11 +148,12 @@ def load_pressed():
 # Description of the script
 def script_description():
     return """A script to show Bible scriptures.
-By KevinJP"""
+By KevinJP
+Versions: Terjemahan Baru (tb), New King James Version (nkjv), New International Version (niv), New English Translation (net), Authorized Version (av)"""
 
 
 def script_properties():
-    
+    global props
     props = obs.obs_properties_create()
     
     # Add input field for Text Source and Title Text Source
@@ -106,19 +197,7 @@ def script_properties():
     versions = ["tb", "nkjv", "niv", "net", "av"]
     
     for version in versions:
-        name = ""
-        if version == "tb":
-            name = "Terjemahan Baru (TB)"
-        elif version == "nkjv":
-            name = "New King James Version (NKJV)"
-        elif version == "niv":
-            name = "New International Version (NIV)"
-        elif version == "net":
-            name = "New English Translation (NET)"
-        elif version == "av":
-            name = "Authorized Version (AV)"
-        
-        obs.obs_property_list_add_string(versions_ph, name, version)
+        obs.obs_property_list_add_string(versions_ph, version, version)
     
     # Add a placeholder list for the book of the bible
     book_ph = obs.obs_properties_add_list(
@@ -144,20 +223,19 @@ def script_properties():
         1 # iter
     )
     
-    # Load the bible verses
-    obs.obs_properties_add_button(props, "load", "Load Verses", load_pressed)
-
-    
     # Add placeholder list for verse
-    verse_ph = obs.obs_properties_add_list(
+    verse_ph = obs.obs_properties_add_int(
         props,
         "verse",
         "Verse:",
-        obs.OBS_COMBO_TYPE_EDITABLE,
-        obs.OBS_COMBO_FORMAT_INT
+        1, # min
+        176, # max
+        1 # iter
     )
     
+    # Load the bible verses
+    obs.obs_properties_add_button(props, "loadverses", "Load Verses", load_pressed)
+
     
-    
-    
+
     return props
