@@ -140,6 +140,8 @@ def load_pressed(props, prop):
     if len(verse_loaded) < selected_verse:
         selected_verse = len(verse_loaded)
         obs.obs_data_set_int(script_settings,"verse",selected_verse)
+        
+    return True
     
     
     
