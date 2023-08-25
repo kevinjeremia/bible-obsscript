@@ -119,7 +119,7 @@ def get_verse():
     scripture_loaded = []
     
     for verse in scripture:
-        if verse["content"] == "content"
+        if verse["content"] == "content":
             scripture_loaded.append(verse)
     
     if len(scripture_loaded) > selected_verse:
