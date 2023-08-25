@@ -114,27 +114,33 @@ def get_json_scripture(version,book,chapter):
 # Add the loaded verse to the dedicated list
 def get_verse():
     global scripture
-    global scripture_loaded
+    global verse_loaded
     global selected_verse
     
-    scripture_loaded = []
+    verse_loaded = []
     
     for verse in scripture:
-        if verse["content"] == "content":
-            scripture_loaded.append(verse)
+        if verse["type"] == "content":
+            verse_loaded.append(verse)
+        
     
-    if len(scripture_loaded) > selected_verse:
-        selected_verse = len(scripture_loaded)
     
 # When Load Verses button is pressed, function get_json_scripture will be called
-
 def load_pressed(props, prop):
     global scripture
     global selected_verse
+    global verse_loaded
     
     scripture = get_json_scripture(selected_version,selected_book,selected_chapter)
     scripture.pop()
     get_verse()
+    
+    # Will set the selected_verse to the max of total verse on the selected chapter
+    # if selected_verse exceed it
+    if len(verse_loaded) < selected_verse:
+        selected_verse = len(verse_loaded)
+        obs.obs_data_set_int(script_settings,"verse",selected_verse)
+    
     
     
     
@@ -237,6 +243,7 @@ def script_properties():
     # Load the bible verses
     obs.obs_properties_add_button(props, "loadverses", "Load Verses", load_pressed)
 
-    
+    # Show verse that will be displayed
+    # displayed_verse = obs.obs_properties_add(text)
 
     return props
