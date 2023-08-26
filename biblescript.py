@@ -20,7 +20,7 @@
 import obspython as obs
 from bs4 import BeautifulSoup
 import requests
-
+import textwrap
 
 # ------------------------------------------------------------
 
@@ -121,28 +121,76 @@ def get_verse():
     
     for verse in scripture:
         if verse["type"] == "content":
-            verse_loaded.append(verse)
+            verse_loaded.append(verse["content"])
         
 
-# Add display count to the displayed_verse and show how the verse will be displayed
+# Show how the verse will be displayed (Add displayed verse to the field)
+def add_preview_verse(props, verse_loaded, selected_verse):
+    
+    # Get the max width and line
+    width = obs.obs_data_get_int(script_settings, "maxwidth")
+    line = obs.obs_data_get_int(script_settings, "maxline")
+    
+    if (width < 15 | line < 1):
+        width = 15
+        line = 1
 
+    # Wrap the verse (putting them into list)
+    wrapper = textwrap.TextWrapper(width=width)
+    wrapped_verse_list = wrapper.wrap(text = verse_loaded[selected_verse - 1])
+
+    # Combine the wrapped verse into text field
+    displayed_verse_text = ""
+    line_counter = line 
+    display_counter = 1
+    
+    for verse in wrapped_verse_list:
+        if line_counter == 0:
+            displayed_verse_text += "\n~\n"
+            line_counter = line
+            display_counter += 1
+        elif (line_counter > 0 and line_counter < line):
+            displayed_verse_text += "\n"
+        displayed_verse_text += verse
+        line_counter -= 1
+    
+    # Add display counter to preview verse description
+    preview_verse_prop = obs.obs_properties_get(props, "previewverse")
+    obs.obs_property_set_description(preview_verse_prop, f"Display ({display_counter}):")	
+    
+    # Put the combined wrapped verse into the preview verse text field
+    obs.obs_data_set_string(script_settings, "previewverse", displayed_verse_text)
+
+        
+        
     
 # When Load Verses button is pressed, function get_json_scripture will be called
 def load_pressed(props, prop):
     global scripture
     global selected_verse
-    global verse_loaded
+    global verse_loaded # The list of verse from get_verse()
     
-    scripture = get_json_scripture(selected_version,selected_book,selected_chapter)
+    scripture = get_json_scripture(
+        selected_version,
+        selected_book,
+        selected_chapter
+    )
+    # Remove the copyright from the scripture list
     scripture.pop()
+    
     get_verse()
     
     # Will set the selected_verse to the max of total verse on the selected chapter
     # if selected_verse exceed it
     if len(verse_loaded) < selected_verse:
         selected_verse = len(verse_loaded)
-        obs.obs_data_set_int(script_settings,"verse",selected_verse)
-        
+        obs.obs_data_set_int(
+            script_settings,
+            "verse",
+            selected_verse)
+    
+    add_preview_verse(props, verse_loaded, selected_verse)
+    
     return True
     
     
@@ -165,7 +213,7 @@ Versions: Terjemahan Baru (tb), New King James Version (nkjv), New International
 
 
 def script_properties():
-    global props
+    
     props = obs.obs_properties_create()
     
     # Add input field for Text Source and Title Text Source
@@ -192,8 +240,16 @@ def script_properties():
                 n.append(obs.obs_source_get_name(source))
         n.sort()
         for name in n:
-                obs.obs_property_list_add_string(text_source, name, name)
-                obs.obs_property_list_add_string(title_source, name, name)				
+                obs.obs_property_list_add_string(
+                    text_source,
+                    name,
+                    name
+                )
+                obs.obs_property_list_add_string(
+                    title_source,
+                    name,
+                    name
+                )				
     obs.source_list_release(sources)
   
     # Add a placeholder list of bible version
@@ -209,7 +265,11 @@ def script_properties():
     versions = ["tb", "nkjv", "niv", "net", "av"]
     
     for version in versions:
-        obs.obs_property_list_add_string(versions_ph, version, version)
+        obs.obs_property_list_add_string(
+            versions_ph,
+            version,
+            version
+        )
     
     # Add a placeholder list for the book of the bible
     book_ph = obs.obs_properties_add_list(
@@ -223,7 +283,11 @@ def script_properties():
     # Add list of book to the placeholder by iterating book_list
     book_list = parse_book()
     for book in book_list:
-        obs.obs_property_list_add_string(book_ph, book, book)
+        obs.obs_property_list_add_string(
+            book_ph,
+            book,
+            book
+        )
         
     # Add a input field for the chapter 
     chapter_ph = obs.obs_properties_add_int(
@@ -246,14 +310,38 @@ def script_properties():
     )
     
     # Load the bible verses
-    obs.obs_properties_add_button(props, "loadverses", "Load Verses", load_pressed)
+    obs.obs_properties_add_button(
+        props,
+        "loadverses",
+        "Load Verses",
+        load_pressed
+    )
 
     # Show verse that will be displayed
-    displayed_verse = obs.obs_properties_add_text(props, "displayedverse", "Display:", obs.OBS_TEXT_MULTILINE)
+    preview_verse = obs.obs_properties_add_text(
+        props,
+        "previewverse",
+        "Display:",
+        obs.OBS_TEXT_MULTILINE
+    )
 
     # Maximum characters per line that will be displayed
-    max_width = obs.obs_properties_add_int(props,"maxwidth","Width (Chars):",15,70,1)
+    max_width = obs.obs_properties_add_int(
+        props,
+        "maxwidth",
+        "Width (Chars):",
+        15, # min
+        70, # max
+        1 # iter
+    )
     
     # Maximum line that will be displayed
-    max_line = obs.obs_properties_add_int(props,"maxline","Height (Lines):",1,12,1)
+    max_line = obs.obs_properties_add_int(
+        props,
+        "maxline",
+        "Height (Lines):",
+        1, # min
+        12,# max
+        1 # iter 
+    )
     return props
