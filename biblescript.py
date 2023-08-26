@@ -123,7 +123,9 @@ def get_verse():
         if verse["type"] == "content":
             verse_loaded.append(verse)
         
-    
+
+# Add display count to the displayed_verse and show how the verse will be displayed
+
     
 # When Load Verses button is pressed, function get_json_scripture will be called
 def load_pressed(props, prop):
@@ -158,6 +160,7 @@ def load_pressed(props, prop):
 def script_description():
     return """A script to show Bible scriptures.
 By KevinJP
+
 Versions: Terjemahan Baru (tb), New King James Version (nkjv), New International Version (niv), New English Translation (net), Authorized Version (av)"""
 
 
@@ -170,14 +173,14 @@ def script_properties():
         props,
         "textsource",
         "Text Source",
-        obs.OBS_COMBO_TYPE_EDITABLE,
+        obs.OBS_COMBO_TYPE_LIST,
         obs.OBS_COMBO_FORMAT_STRING
     )
     title_source = obs.obs_properties_add_list(
         props,
         "titlesource",
         "Title Source",
-        obs.OBS_COMBO_TYPE_EDITABLE,
+        obs.OBS_COMBO_TYPE_LIST,
         obs.OBS_COMBO_FORMAT_STRING
     )	
     sources = obs.obs_enum_sources()
@@ -246,6 +249,11 @@ def script_properties():
     obs.obs_properties_add_button(props, "loadverses", "Load Verses", load_pressed)
 
     # Show verse that will be displayed
-    # displayed_verse = obs.obs_properties_add(text)
+    displayed_verse = obs.obs_properties_add_text(props, "displayedverse", "Display:", obs.OBS_TEXT_MULTILINE)
 
+    # Maximum characters per line that will be displayed
+    max_width = obs.obs_properties_add_int(props,"maxwidth","Width (Chars):",15,70,1)
+    
+    # Maximum line that will be displayed
+    max_line = obs.obs_properties_add_int(props,"maxline","Height (Lines):",1,12,1)
     return props
