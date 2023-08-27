@@ -172,7 +172,6 @@ def add_preview_verse(props):
     display_counter = 1
     
     final_displayed_verse = []
-    verse_final = ""
     
     for verse in wrapped_verse_list:
         if line_counter == 0:
@@ -182,19 +181,15 @@ def add_preview_verse(props):
             display_counter += 1
         elif (line_counter > 0 and line_counter < line):
             displayed_verse_text += "\n"
-            verse_final += "\n"
             
         displayed_verse_text += verse
-        verse_final += verse
         line_counter -= 1
         
-        # This is ugly code, but atleast it's work for now
-        if line_counter == 0:
-            # Add the grouped verse to list when line counter reaches the maximum lines allowed
-            final_displayed_verse.append(verse_final)
-            verse_final = ""
+    # This is ugly code, but atleast it's work for now mate~
+    # Strip and split the Displayed Verse Text into list for the verse text source
+    uncleaned_fdv = displayed_verse_text.split("~")
+    final_displayed_verse = [s.strip("\n") for s in uncleaned_fdv]
 
-        
     # Add display counter to preview verse description
     preview_verse_prop = obs.obs_properties_get(props, "previewverse")
     obs.obs_property_set_description(
