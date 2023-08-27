@@ -152,6 +152,7 @@ def add_preview_chapter(props):
 
 # Show how the verse will be displayed (Add displayed verse to the field)
 def add_preview_verse(props):
+    global final_displayed_verse
     
     # Get the max width and line
     width = obs.obs_data_get_int(script_settings, "maxwidth")
@@ -170,15 +171,29 @@ def add_preview_verse(props):
     line_counter = line 
     display_counter = 1
     
+    final_displayed_verse = []
+    verse_final = ""
+    
     for verse in wrapped_verse_list:
         if line_counter == 0:
+            # Mark the previewed verse with ~
             displayed_verse_text += "\n~\n"
             line_counter = line
             display_counter += 1
         elif (line_counter > 0 and line_counter < line):
             displayed_verse_text += "\n"
+            verse_final += "\n"
+            
         displayed_verse_text += verse
+        verse_final += verse
         line_counter -= 1
+        
+        # This is ugly code, but atleast it's work for now
+        if line_counter == 0:
+            # Add the grouped verse to list when line counter reaches the maximum lines allowed
+            final_displayed_verse.append(verse_final)
+            verse_final = ""
+
         
     # Add display counter to preview verse description
     preview_verse_prop = obs.obs_properties_get(props, "previewverse")
@@ -208,6 +223,22 @@ def update_title_source():
         obs.obs_data_release(settings)
 
     obs.obs_source_release(source)
+
+# Update the text verse with the selected verse
+def update_text_source(final_displayed_verse):
+    source = obs.obs_get_source_by_name(text_source_name)
+    if source is not None:
+        verse = final_displayed_verse[0] # The index will be replaced with current_verse
+        settings = obs.obs_data_create()
+        obs.obs_data_set_string(settings, "text", verse)
+        
+        # Update text source
+        obs.obs_source_update(source, settings)
+        
+        obs.obs_data_release(settings)
+
+    obs.obs_source_release(source)
+    
         
 # When Load Verses button is pressed, function get_json_scripture will be called
 # and will display the selected scripture
@@ -240,6 +271,8 @@ def load_pressed(props, prop):
     add_preview_verse(props)
     
     update_title_source()
+    
+    update_text_source(final_displayed_verse)
     
     return True
     
