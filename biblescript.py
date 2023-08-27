@@ -131,12 +131,19 @@ def add_preview_chapter(props):
         preview_all_verse += f"{index} {verse}\n~\n"
         index += 1
     
-    # Add display counter to preview verse description
+    # Add selected chapter to preview chapter description
     preview_chapter_prop = obs.obs_properties_get(props, "previewchapter")
-    obs.obs_property_set_description(preview_chapter_prop, f"Preview\n{selected_book} {selected_chapter}:")	
+    obs.obs_property_set_description(
+        preview_chapter_prop,
+        f"Preview\n{selected_book} {selected_chapter}:"
+    )	
     
-    # Put the combined wrapped verse into the preview verse text field
-    obs.obs_data_set_string(script_settings, "previewchapter", preview_all_verse)
+    # Put the combined verse into the preview chapter text field
+    obs.obs_data_set_string(
+        script_settings,
+        "previewchapter",
+        preview_all_verse
+    )
 
 # Show how the verse will be displayed (Add displayed verse to the field)
 def add_preview_verse(props):
@@ -170,10 +177,17 @@ def add_preview_verse(props):
         
     # Add display counter to preview verse description
     preview_verse_prop = obs.obs_properties_get(props, "previewverse")
-    obs.obs_property_set_description(preview_verse_prop, f"Display ({display_counter}):")	
+    obs.obs_property_set_description(
+        preview_verse_prop, 
+        f"Display Counter ({display_counter}):\n{selected_book} {selected_chapter}:{selected_verse}"
+    )	
     
     # Put the combined wrapped verse into the preview verse text field
-    obs.obs_data_set_string(script_settings, "previewverse", displayed_verse_text)
+    obs.obs_data_set_string(
+        script_settings, 
+        "previewverse",
+        displayed_verse_text
+    )
 
         
 # When Load Verses button is pressed, function get_json_scripture will be called
@@ -271,7 +285,7 @@ def script_properties():
         props,
         "bibleversion",
         "Bible Version:",
-        obs.OBS_COMBO_TYPE_EDITABLE,
+        obs.OBS_COMBO_TYPE_LIST,
         obs.OBS_COMBO_FORMAT_STRING
     )
     
