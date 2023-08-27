@@ -153,7 +153,7 @@ def add_preview_verse(props, verse_loaded, selected_verse):
             displayed_verse_text += "\n"
         displayed_verse_text += verse
         line_counter -= 1
-    
+        
     # Add display counter to preview verse description
     preview_verse_prop = obs.obs_properties_get(props, "previewverse")
     obs.obs_property_set_description(preview_verse_prop, f"Display ({display_counter}):")	
@@ -162,8 +162,6 @@ def add_preview_verse(props, verse_loaded, selected_verse):
     obs.obs_data_set_string(script_settings, "previewverse", displayed_verse_text)
 
         
-        
-    
 # When Load Verses button is pressed, function get_json_scripture will be called
 def load_pressed(props, prop):
     global scripture
@@ -317,6 +315,14 @@ def script_properties():
         load_pressed
     )
 
+    # Show the verse of selected chapter
+    preview_chapter = obs.obs_properties_add_text(
+        props,
+        "previewchapter",
+        "Chapter:",
+        obs.OBS_TEXT_MULTILINE
+    )
+    
     # Show verse that will be displayed
     preview_verse = obs.obs_properties_add_text(
         props,
