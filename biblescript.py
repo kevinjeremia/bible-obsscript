@@ -35,11 +35,16 @@ def script_update(settings):
     global selected_book
     global selected_chapter
     global selected_verse
+    global text_source_name
+    global title_source_name
     
     selected_version = obs.obs_data_get_string(settings, "bibleversion")
     selected_book = obs.obs_data_get_string(settings, "book")
     selected_chapter = obs.obs_data_get_int(settings, "chapter")
     selected_verse = obs.obs_data_get_int(settings, "verse")
+    
+    text_source_name = obs.obs_data_get_string(settings, "textsource")
+    title_source_name = obs.obs_data_get_string(settings, "titlesource")
     
 # Fetch the list of the book in the Bible from the url below
 # and will return list of the book
@@ -189,8 +194,23 @@ def add_preview_verse(props):
         displayed_verse_text
     )
 
+# Update the title source with the selected scripture
+def update_title_source():
+    source = obs.obs_get_source_by_name(title_source_name)
+    if source is not None:
+        title = f"{selected_book} {selected_chapter}:{selected_verse}"
+        settings = obs.obs_data_create()
+        obs.obs_data_set_string(settings, "text", title)
+        
+        # Update title source
+        obs.obs_source_update(source, settings)
+        
+        obs.obs_data_release(settings)
+
+    obs.obs_source_release(source)
         
 # When Load Verses button is pressed, function get_json_scripture will be called
+# and will display the selected scripture
 def load_pressed(props, prop):
     global scripture
     global selected_verse
@@ -218,6 +238,8 @@ def load_pressed(props, prop):
     add_preview_chapter(props)
     
     add_preview_verse(props)
+    
+    update_title_source()
     
     return True
     
