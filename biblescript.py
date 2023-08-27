@@ -226,9 +226,10 @@ def update_title_source():
 
 # Update the text verse with the selected verse
 def update_text_source(final_displayed_verse):
+    
     source = obs.obs_get_source_by_name(text_source_name)
     if source is not None:
-        verse = final_displayed_verse[0] # The index will be replaced with current_verse
+        verse = final_displayed_verse[current_index]
         settings = obs.obs_data_create()
         obs.obs_data_set_string(settings, "text", verse)
         
@@ -246,6 +247,11 @@ def load_pressed(props, prop):
     global scripture
     global selected_verse
     global verse_loaded # The list of verse from get_verse()
+    global current_index
+    global prev_index
+    global next_index
+    
+    current_index = 1 # Current index of preview verse (start from 1)
     
     scripture = get_json_scripture(
         selected_version,
@@ -274,12 +280,46 @@ def load_pressed(props, prop):
     
     update_text_source(final_displayed_verse)
     
+    # Assign the previous index and next index of preview verse
+    if (current_index == len(final_displayed_verse)):
+        prev_index = 0
+        next_index = 0
+    elif (current_index + 1 > len(final_displayed_verse)):
+        next_index = 0
+        prev_index = current_index-1
+    elif (current_index - 1 < 1):
+        prev_index = len(final_displayed_verse)
+        next_index = current_index + 1
+    else:
+        prev_index = current_index-1
+        next_index = current_index + 1
+
+    # Add the index of previous display
+    prev_display_pro = obs.obs_properties_get(props, "prevdisplay")
+    obs.obs_property_set_description(
+        prev_display_pro, 
+        f"Prev Display ({prev_index}):"
+    )	
+    
+    # Add the index of next display
+    next_display_pro = obs.obs_properties_get(props, "nextdisplay")
+    obs.obs_property_set_description(
+        next_display_pro, 
+        f"Next Display ({next_index}):"
+    )
+    
     return True
     
+# Show previous index of preview verse
+def prev_display_pressed():
+    global current_index
+    pass
     
-    
-    
-    
+# Show previous index of preview verse
+def next_display_pressed():
+    global current_index
+    pass
+
     
     
 
@@ -416,6 +456,20 @@ def script_properties():
         obs.OBS_TEXT_MULTILINE
     )
 
+    obs.obs_properties_add_button(
+        props,
+        "prevdisplay",
+        "Prev Display:",
+        prev_display_pressed
+    )
+    
+    obs.obs_properties_add_button(
+        props,
+        "nextdisplay",
+        "Next Display:",
+        next_display_pressed
+    )
+    
     # Maximum characters per line that will be displayed
     max_width = obs.obs_properties_add_int(
         props,
