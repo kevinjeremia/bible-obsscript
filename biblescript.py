@@ -113,19 +113,33 @@ def get_json_scripture(version,book,chapter):
     
 # Add the loaded verse to the dedicated list
 def get_verse():
-    global scripture
     global verse_loaded
-    global selected_verse
     
     verse_loaded = []
     
     for verse in scripture:
         if verse["type"] == "content":
             verse_loaded.append(verse["content"])
-        
+            
+# Show all the verse in the selected chapter
+def add_preview_chapter(props):
+    
+    # Combine all the verse into one string
+    preview_all_verse = ""
+    index = 1
+    for verse in verse_loaded:
+        preview_all_verse += f"{index} {verse}\n~\n"
+        index += 1
+    
+    # Add display counter to preview verse description
+    preview_chapter_prop = obs.obs_properties_get(props, "previewchapter")
+    obs.obs_property_set_description(preview_chapter_prop, f"Preview\n{selected_book} {selected_chapter}:")	
+    
+    # Put the combined wrapped verse into the preview verse text field
+    obs.obs_data_set_string(script_settings, "previewchapter", preview_all_verse)
 
 # Show how the verse will be displayed (Add displayed verse to the field)
-def add_preview_verse(props, verse_loaded, selected_verse):
+def add_preview_verse(props):
     
     # Get the max width and line
     width = obs.obs_data_get_int(script_settings, "maxwidth")
@@ -139,7 +153,7 @@ def add_preview_verse(props, verse_loaded, selected_verse):
     wrapper = textwrap.TextWrapper(width=width)
     wrapped_verse_list = wrapper.wrap(text = verse_loaded[selected_verse - 1])
 
-    # Combine the wrapped verse into text field
+    # Combine the wrapped verse into one string
     displayed_verse_text = ""
     line_counter = line 
     display_counter = 1
@@ -187,7 +201,9 @@ def load_pressed(props, prop):
             "verse",
             selected_verse)
     
-    add_preview_verse(props, verse_loaded, selected_verse)
+    add_preview_chapter(props)
+    
+    add_preview_verse(props)
     
     return True
     
@@ -319,7 +335,7 @@ def script_properties():
     preview_chapter = obs.obs_properties_add_text(
         props,
         "previewchapter",
-        "Chapter:",
+        "Preview\nChapter:",
         obs.OBS_TEXT_MULTILINE
     )
     
