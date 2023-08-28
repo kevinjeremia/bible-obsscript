@@ -259,18 +259,20 @@ def update_prev_next_desc(props):
     prev_display_prop = obs.obs_properties_get(props, "prevdisplay")
     obs.obs_property_set_description(
         prev_display_prop, 
-        f"Prev Display ({prev_index+1}):"
+        f"Prev Display ({prev_index+1})"
     )	
     
     # Add the index of next display
     next_display_prop = obs.obs_properties_get(props, "nextdisplay")
     obs.obs_property_set_description(
         next_display_prop, 
-        f"Next Display ({next_index+1}):"
+        f"Next Display ({next_index+1})"
     )
         
 # When Load Verses button is pressed, function get_json_scripture will be called
-# and will display the selected scripture
+# and will display the preview of the whole chapter and particular selected verse. 
+# It will call other function too that will update title and text verse source, 
+# also update the description of prev and next display by adding the index. 
 def load_pressed(props, prop):
     global scripture
     global selected_verse
@@ -291,7 +293,7 @@ def load_pressed(props, prop):
     
     # Will set the selected_verse to the max of total verse on the selected chapter
     # if selected_verse exceed it
-    if len(verse_loaded) < selected_verse:
+    if selected_verse > len(verse_loaded) :
         selected_verse = len(verse_loaded)
         obs.obs_data_set_int(
             script_settings,
@@ -311,18 +313,62 @@ def load_pressed(props, prop):
     return True
 
 def prev_verse_pressed(props, prop):
-    pass
+    global current_index
+    global selected_verse
+    
+    current_index = 0 # preview display current index
+    
+    if selected_verse > 1:
+        selected_verse -= 1
+        obs.obs_data_set_int(
+            script_settings,
+            "verse",
+            selected_verse)
+        
+    add_preview_chapter(props)
+    
+    add_preview_verse(props)
+    
+    update_title_source()
+    
+    update_text_source(final_displayed_verse)
+    
+    update_prev_next_desc(props)
+    
+    return True
+    
+    
 
 def next_verse_pressed(props,prop):
-    pass
+    global current_index
+    global selected_verse
+    
+    current_index = 0 # preview display current index
+    
+    if selected_verse < len(verse_loaded):
+        selected_verse += 1
+        obs.obs_data_set_int(
+            script_settings,
+            "verse",
+            selected_verse)
+        
+    add_preview_chapter(props)
+    
+    add_preview_verse(props)
+    
+    update_title_source()
+    
+    update_text_source(final_displayed_verse)
+    
+    update_prev_next_desc(props)
+    
+    return True
     
 # Show previous index of preview verse
 def prev_display_pressed(props, prop):
     global current_index
     
-    if current_index == 0:
-        current_index = 0 # len(final_displayed_verse)-1
-    else:
+    if current_index > 0:
         current_index -= 1
        
     update_text_source(final_displayed_verse)
@@ -334,10 +380,8 @@ def prev_display_pressed(props, prop):
 def next_display_pressed(props, prop):
     global current_index
     
-    if (current_index == len(final_displayed_verse) - 1):
-        current_index = current_index
-    else:
-       current_index += 1
+    if (current_index < len(final_displayed_verse) - 1):
+        current_index += 1
        
     update_text_source(final_displayed_verse)
     
