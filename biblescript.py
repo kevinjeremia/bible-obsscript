@@ -306,14 +306,18 @@ def load_pressed(props, prop):
     return True
     
 # Show previous index of preview verse
-def prev_display_pressed():
+def prev_display_pressed(props,prop):
     global current_index
-    pass
+    current_index -= 1
+    update_text_source(final_displayed_verse)
+    
+    
     
 # Show previous index of preview verse
-def next_display_pressed():
+def next_display_pressed(props,prop):
     global current_index
-    pass
+    current_index += 1
+    update_text_source(final_displayed_verse)
 
     
     
