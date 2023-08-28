@@ -468,7 +468,7 @@ def script_properties():
     # Display previous verse (button) 
     obs.obs_properties_add_button(
         props,
-        "prevdisplay",
+        "prevverse",
         "Prev Verse",
         prev_verse_pressed
     )
