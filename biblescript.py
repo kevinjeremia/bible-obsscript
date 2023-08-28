@@ -235,6 +235,39 @@ def update_text_source(final_displayed_verse):
 
     obs.obs_source_release(source)
     
+# Update the description property of prev and next display button
+def update_prev_next_desc(props):
+    global prev_index
+    global next_index
+    global current_index
+    
+    # Assign the previous index and next index of preview verse
+    if (len(final_displayed_verse) == 1):
+        prev_index = 0
+        next_index = 0
+    elif (current_index + 1 > len(final_displayed_verse) - 1):
+        next_index = 0
+        prev_index = current_index-1
+    elif (current_index - 1 < 0):
+        prev_index = len(final_displayed_verse) - 1
+        next_index = current_index + 1
+    else:
+        prev_index = current_index - 1
+        next_index = current_index + 1
+
+    # Add the index of previous display
+    prev_display_pro = obs.obs_properties_get(props, "prevdisplay")
+    obs.obs_property_set_description(
+        prev_display_pro, 
+        f"Prev Display ({prev_index+1}):"
+    )	
+    
+    # Add the index of next display
+    next_display_pro = obs.obs_properties_get(props, "nextdisplay")
+    obs.obs_property_set_description(
+        next_display_pro, 
+        f"Next Display ({next_index+1}):"
+    )
         
 # When Load Verses button is pressed, function get_json_scripture will be called
 # and will display the selected scripture
@@ -243,8 +276,6 @@ def load_pressed(props, prop):
     global selected_verse
     global verse_loaded # The list of verse from get_verse()
     global current_index
-    global prev_index
-    global next_index
     
     current_index = 0 # Current index of preview verse (start from 0)
     
@@ -275,49 +306,38 @@ def load_pressed(props, prop):
     
     update_text_source(final_displayed_verse)
     
-    # Assign the previous index and next index of preview verse
-    if (current_index == len(final_displayed_verse) - 1):
-        prev_index = 0
-        next_index = 0
-    elif (current_index + 1 > len(final_displayed_verse) - 1):
-        next_index = 0
-        prev_index = current_index-1
-    elif (current_index - 1 < 0):
-        prev_index = len(final_displayed_verse) - 1
-        next_index = current_index + 1
-    else:
-        prev_index = current_index - 1
-        next_index = current_index + 1
-
-    # Add the index of previous display
-    prev_display_pro = obs.obs_properties_get(props, "prevdisplay")
-    obs.obs_property_set_description(
-        prev_display_pro, 
-        f"Prev Display ({prev_index+1}):"
-    )	
-    
-    # Add the index of next display
-    next_display_pro = obs.obs_properties_get(props, "nextdisplay")
-    obs.obs_property_set_description(
-        next_display_pro, 
-        f"Next Display ({next_index+1}):"
-    )
+    update_prev_next_desc(props)
     
     return True
     
 # Show previous index of preview verse
 def prev_display_pressed(props,prop):
     global current_index
-    current_index -= 1
+    
+    if (current_index - 1 < 0):
+        current_index = len(final_displayed_verse)-1
+    else:
+        current_index -= 1
+       
     update_text_source(final_displayed_verse)
+    update_prev_next_desc(props)
     
-    
+    return True
     
 # Show previous index of preview verse
 def next_display_pressed(props,prop):
     global current_index
-    current_index += 1
+    
+    if (current_index + 1 > len(final_displayed_verse) - 1):
+        current_index = 0
+    else:
+       current_index += 1
+       
     update_text_source(final_displayed_verse)
+    
+    update_prev_next_desc(props)
+    
+    return True
 
     
     
