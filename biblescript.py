@@ -256,16 +256,16 @@ def update_prev_next_desc(props):
         next_index = current_index + 1
 
     # Add the index of previous display
-    prev_display_pro = obs.obs_properties_get(props, "prevdisplay")
+    prev_display_prop = obs.obs_properties_get(props, "prevdisplay")
     obs.obs_property_set_description(
-        prev_display_pro, 
+        prev_display_prop, 
         f"Prev Display ({prev_index+1}):"
     )	
     
     # Add the index of next display
-    next_display_pro = obs.obs_properties_get(props, "nextdisplay")
+    next_display_prop = obs.obs_properties_get(props, "nextdisplay")
     obs.obs_property_set_description(
-        next_display_pro, 
+        next_display_prop, 
         f"Next Display ({next_index+1}):"
     )
         
@@ -475,6 +475,7 @@ def script_properties():
         obs.OBS_TEXT_MULTILINE
     )
 
+    # Previous display button (if pressed, it will display the previous index of the preview verse)
     obs.obs_properties_add_button(
         props,
         "prevdisplay",
@@ -482,6 +483,7 @@ def script_properties():
         prev_display_pressed
     )
     
+    # Next display button (if pressed, it will display the next index of the preview verse)
     obs.obs_properties_add_button(
         props,
         "nextdisplay",
