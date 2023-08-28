@@ -309,9 +309,15 @@ def load_pressed(props, prop):
     update_prev_next_desc(props)
     
     return True
+
+def prev_verse_pressed(props, prop):
+    pass
+
+def next_verse_pressed(props,prop):
+    pass
     
 # Show previous index of preview verse
-def prev_display_pressed(props,prop):
+def prev_display_pressed(props, prop):
     global current_index
     
     if current_index == 0:
@@ -325,7 +331,7 @@ def prev_display_pressed(props,prop):
     return True
     
 # Show previous index of preview verse
-def next_display_pressed(props,prop):
+def next_display_pressed(props, prop):
     global current_index
     
     if (current_index == len(final_displayed_verse) - 1):
@@ -458,6 +464,22 @@ def script_properties():
         "Load Verses",
         load_pressed
     )
+    
+    # Display previous verse (button) 
+    obs.obs_properties_add_button(
+        props,
+        "prevdisplay",
+        "Prev Verse",
+        prev_verse_pressed
+    )
+    
+    # Display previous verse (button) 
+    obs.obs_properties_add_button(
+        props,
+        "nextverse",
+        "Next Verse",
+        next_verse_pressed
+    )
 
     # Show the verse of selected chapter
     preview_chapter = obs.obs_properties_add_text(
@@ -479,7 +501,7 @@ def script_properties():
     obs.obs_properties_add_button(
         props,
         "prevdisplay",
-        "Prev Display:",
+        "Prev Display",
         prev_display_pressed
     )
     
@@ -487,7 +509,7 @@ def script_properties():
     obs.obs_properties_add_button(
         props,
         "nextdisplay",
-        "Next Display:",
+        "Next Display",
         next_display_pressed
     )
     
