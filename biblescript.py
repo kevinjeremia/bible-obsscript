@@ -242,14 +242,14 @@ def update_prev_next_desc(props):
     global current_index
     
     # Assign the previous index and next index of preview verse
-    if (len(final_displayed_verse) == 1):
+    if len(final_displayed_verse) == 1:
         prev_index = 0
         next_index = 0
-    elif (current_index + 1 > len(final_displayed_verse) - 1):
-        next_index = 0
+    elif (current_index == len(final_displayed_verse)-1):
+        next_index = current_index
         prev_index = current_index-1
-    elif (current_index - 1 < 0):
-        prev_index = len(final_displayed_verse) - 1
+    elif current_index == 0:
+        prev_index = 0
         next_index = current_index + 1
     else:
         prev_index = current_index - 1
@@ -314,8 +314,8 @@ def load_pressed(props, prop):
 def prev_display_pressed(props,prop):
     global current_index
     
-    if (current_index - 1 < 0):
-        current_index = len(final_displayed_verse)-1
+    if current_index == 0:
+        current_index = 0 # len(final_displayed_verse)-1
     else:
         current_index -= 1
        
@@ -328,8 +328,8 @@ def prev_display_pressed(props,prop):
 def next_display_pressed(props,prop):
     global current_index
     
-    if (current_index + 1 > len(final_displayed_verse) - 1):
-        current_index = 0
+    if (current_index == len(final_displayed_verse) - 1):
+        current_index = current_index
     else:
        current_index += 1
        
