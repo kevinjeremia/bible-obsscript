@@ -27,6 +27,9 @@ import textwrap
 # Script that will be called during the startup
 def script_load(settings):
     global script_settings
+    global is_load_pressed
+    
+    is_load_pressed = False
     script_settings = settings
     
 # Function that will be called when the script's settings have been changed
@@ -125,6 +128,8 @@ def get_verse():
     for verse in scripture:
         if verse["type"] == "content":
             verse_loaded.append(verse["content"])
+    
+    return verse_loaded
             
 # Show all the verse in the selected chapter
 def add_preview_chapter(props):
@@ -279,7 +284,16 @@ def update_prev_next_desc(props):
             next_display_prop, 
             f"Next Display ({next_index+1})"
         )
+
+def chapter_is_changed() -> bool:
+    is_chapter_changed = False
+
+    if is_load_pressed and loaded_chapter != selected_chapter:
+        is_chapter_changed = True
+    
+    return is_chapter_changed
         
+
 # When Load Verses button is pressed, function get_json_scripture will be called
 # and will display the preview of the whole chapter and particular selected verse. 
 # It will call other function too that will update title and text verse source, 
@@ -289,18 +303,25 @@ def load_pressed(props, prop):
     global selected_verse
     global verse_loaded # The list of verse from get_verse()
     global current_index
+    global loaded_chapter
+    global is_load_pressed
     
     current_index = 0 # Current index of preview verse (start from 0)
     
-    scripture = get_json_scripture(
-        selected_version,
-        selected_book,
-        selected_chapter
-    )
-    # Remove the copyright from the scripture list
-    scripture.pop()
-    
-    get_verse()
+    if (chapter_is_changed() == True or is_load_pressed == False):
+        scripture = get_json_scripture(
+            selected_version,
+            selected_book,
+            selected_chapter
+        )
+        # Remove the copyright from the scripture list
+        scripture.pop()
+        
+        
+        is_load_pressed = True
+        loaded_chapter = selected_chapter
+        
+        verse_loaded = get_verse()
     
     # Will set the selected_verse to the max of total verse on the selected chapter
     # if selected_verse exceed it
