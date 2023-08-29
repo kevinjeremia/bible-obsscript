@@ -256,18 +256,29 @@ def update_prev_next_desc(props):
         next_index = current_index + 1
 
     # Add the index of previous display
-    prev_display_prop = obs.obs_properties_get(props, "prevdisplay")
-    obs.obs_property_set_description(
-        prev_display_prop, 
-        f"Prev Display ({prev_index+1})"
-    )	
-    
-    # Add the index of next display
+    prev_display_prop = obs.obs_properties_get(props, "prevdisplay")    
+    if current_index == 0:
+        obs.obs_property_set_description(
+            prev_display_prop, 
+            f"Prev Display"
+        )	
+    else:
+        obs.obs_property_set_description(
+            prev_display_prop, 
+            f"Prev Display ({prev_index+1})"
+        )
+       
     next_display_prop = obs.obs_properties_get(props, "nextdisplay")
-    obs.obs_property_set_description(
-        next_display_prop, 
-        f"Next Display ({next_index+1})"
-    )
+    if (current_index == len(final_displayed_verse)-1):
+        obs.obs_property_set_description(
+            next_display_prop, 
+            f"Next Display"
+        )
+    else:
+        obs.obs_property_set_description(
+            next_display_prop, 
+            f"Next Display ({next_index+1})"
+        )
         
 # When Load Verses button is pressed, function get_json_scripture will be called
 # and will display the preview of the whole chapter and particular selected verse. 
