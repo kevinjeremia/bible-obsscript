@@ -308,6 +308,9 @@ def load_pressed(props, prop):
     
     current_index = 0 # Current index of preview verse (start from 0)
     
+    # This conditional statement will allow the script to not fetch verse
+    # from API everytime the user press load button and the user just change
+    # the verse, but the chapter isn't changed.
     if (chapter_is_changed() == True or is_load_pressed == False):
         scripture = get_json_scripture(
             selected_version,
