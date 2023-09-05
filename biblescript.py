@@ -285,18 +285,20 @@ def update_prev_next_desc(props):
             f"Next Display ({next_index+1})"
         )
 
+# Will return True when the book is changed
 def book_is_changed() -> bool:
     is_book_changed = False
 
-    if is_load_pressed and loaded_book != selected_book:
+    if loaded_book != selected_book:
         is_book_changed = True
     
     return is_book_changed
 
+# Will return True when the chapter is changed
 def chapter_is_changed() -> bool:
     is_chapter_changed = False
 
-    if is_load_pressed and loaded_chapter != selected_chapter:
+    if loaded_chapter != selected_chapter:
         is_chapter_changed = True
     
     return is_chapter_changed
