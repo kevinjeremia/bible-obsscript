@@ -285,6 +285,14 @@ def update_prev_next_desc(props):
             f"Next Display ({next_index+1})"
         )
 
+def book_is_changed() -> bool:
+    is_book_changed = False
+
+    if is_load_pressed and loaded_book != selected_book:
+        is_book_changed = True
+    
+    return is_book_changed
+
 def chapter_is_changed() -> bool:
     is_chapter_changed = False
 
@@ -303,6 +311,7 @@ def load_pressed(props, prop):
     global selected_verse
     global verse_loaded # The list of verse from get_verse()
     global current_index
+    global loaded_book
     global loaded_chapter
     global is_load_pressed
     
@@ -311,7 +320,7 @@ def load_pressed(props, prop):
     # This conditional statement will allow the script to not fetch verse
     # from API everytime the user press load button and the user just change
     # the verse, but the chapter isn't changed.
-    if (chapter_is_changed() == True or is_load_pressed == False):
+    if (book_is_changed() == True or chapter_is_changed() == True or is_load_pressed == False):
         scripture = get_json_scripture(
             selected_version,
             selected_book,
@@ -320,11 +329,13 @@ def load_pressed(props, prop):
         # Remove the copyright from the scripture list
         scripture.pop()
         
-        
         is_load_pressed = True
+        loaded_book = selected_book
         loaded_chapter = selected_chapter
-        
+
         verse_loaded = get_verse()
+        
+        print("Load from API")
     
     # Will set the selected_verse to the max of total verse on the selected chapter
     # if selected_verse exceed it
