@@ -19,7 +19,7 @@ OBS Script to show bible scriptures that is fetched from Alkitab-API (by [sonnyl
 - Then on the script, you have to select text source and title source that will show the scriptures
 - You have to select the bible version too, the available versions are: Terjemahan Baru, New Kings James Version, New International Version, New English Translation, and Authorized Version
 - Then, select the book, chapter, and verse
-- To show the selected scripture, click the "Load Verses" button
+- To show the selected scripture, click the "Load Verses" button. You need to click this button every time you want to show another book or chapter
 - To show previous or next verse you can click "Prev Verse" and "Next Verse" button
 - The "Preview Chapter" text box will show all the verse of the loaded chapter
 - The "Display" text box will show the displayed verse on the text source and the number of partitioned verse besides "Display"
