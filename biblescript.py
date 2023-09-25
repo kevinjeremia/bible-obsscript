@@ -28,10 +28,14 @@ import textwrap
 def script_load(settings):
     global script_settings
     global is_load_pressed
+    global loaded_book
     
     is_load_pressed = False
     script_settings = settings
     
+    # When the script is loaded, the loaded book is null.
+    loaded_book = 'null'
+       
 # Function that will be called when the script's settings have been changed
 def script_update(settings):
     global selected_version
