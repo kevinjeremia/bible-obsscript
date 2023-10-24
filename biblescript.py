@@ -72,9 +72,9 @@ def parse_book() -> list:
         list_book += book.contents
     # Remove all the whitespaces because of the AlkitabAPI is sensitive to whitespaces 
     list_book = [book.replace(' ', '') if ' ' in book else book for book in list_book]        
-    print(list_book[43])
+    
     list_book[43] = 'Kisah'
-    print(list_book[43])
+    
     return list_book
 
 # Fetch the json of the selected chapter
