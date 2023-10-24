@@ -72,7 +72,9 @@ def parse_book() -> list:
         list_book += book.contents
     # Remove all the whitespaces because of the AlkitabAPI is sensitive to whitespaces 
     list_book = [book.replace(' ', '') if ' ' in book else book for book in list_book]        
-    
+    print(list_book[43])
+    list_book[43] = 'Kisah'
+    print(list_book[43])
     return list_book
 
 # Fetch the json of the selected chapter
@@ -320,6 +322,7 @@ def load_pressed(props, prop):
     global loaded_book
     global loaded_chapter
     global is_load_pressed
+    global verse_history_text
     
     current_index = 0 # Current index of preview verse (start from 0)
     
@@ -327,6 +330,9 @@ def load_pressed(props, prop):
     # from API everytime the user press load button and the user just change
     # the verse, but the chapter isn't changed.
     if (book_is_changed() == True or chapter_is_changed() == True or is_load_pressed == False):
+        
+        verse_history_text = ""
+        
         scripture = get_json_scripture(
             selected_version,
             selected_book,
@@ -341,7 +347,12 @@ def load_pressed(props, prop):
 
         verse_loaded = get_verse()
         
+        add_preview_chapter(props)
+        
+        add_verse_to_history(props)
+        
         print("Load from API")
+        
     
     # Will set the selected_verse to the max of total verse on the selected chapter
     # if selected_verse exceed it
@@ -351,8 +362,6 @@ def load_pressed(props, prop):
             script_settings,
             "verse",
             selected_verse)
-    
-    add_preview_chapter(props)
     
     add_preview_verse(props)
     
@@ -377,7 +386,6 @@ def prev_verse_pressed(props, prop):
             "verse",
             selected_verse)
         
-    add_preview_chapter(props)
     
     add_preview_verse(props)
     
@@ -403,8 +411,6 @@ def next_verse_pressed(props,prop):
             script_settings,
             "verse",
             selected_verse)
-        
-    add_preview_chapter(props)
     
     add_preview_verse(props)
     
@@ -438,6 +444,21 @@ def next_display_pressed(props, prop):
     update_text_source(final_displayed_verse)
     
     update_prev_next_desc(props)
+    
+    return True
+
+
+# Add loaded verse to history verse list
+def add_verse_to_history(props):
+    global verse_history_text
+    
+    verse_history_text += f"{loaded_book} {loaded_chapter}:{selected_verse}"
+    
+    obs.obs_data_set_string(
+        script_settings, 
+        "versehistory",
+        verse_history_text
+    )
     
     return True
 
@@ -607,6 +628,14 @@ def script_properties():
         "nextdisplay",
         "Next Display",
         next_display_pressed
+    )
+    
+    # List of loaded scriptures
+    verse_history = obs.obs_properties_add_text(
+        props,
+        "versehistory",
+        "Verse History:",
+        obs.OBS_TEXT_MULTILINE
     )
     
     # Maximum characters per line that will be displayed
