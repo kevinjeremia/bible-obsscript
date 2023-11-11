@@ -105,7 +105,7 @@ def get_json_scripture(version,book,chapter):
         'Accept': 'application/json',
         'Connection': 'keep-alive',
         'DNT': '1',
-        'Origin': 'https://bible.sonnylab.com'
+        'Origin': 'https://bible.sonnylab.com/'
     }
 
     # Create the request payload
