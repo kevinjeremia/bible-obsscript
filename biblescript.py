@@ -29,9 +29,11 @@ def script_load(settings):
     global script_settings
     global is_load_pressed
     global loaded_book
+    global verse_history_text
     
     is_load_pressed = False
     script_settings = settings
+    verse_history_text = ""
     
     # When the script is loaded, the loaded book is null.
     loaded_book = 'null'
@@ -322,7 +324,6 @@ def load_pressed(props, prop):
     global loaded_book
     global loaded_chapter
     global is_load_pressed
-    global verse_history_text
     
     current_index = 0 # Current index of preview verse (start from 0)
     
@@ -330,8 +331,6 @@ def load_pressed(props, prop):
     # from API everytime the user press load button and the user just change
     # the verse, but the chapter isn't changed.
     if (book_is_changed() == True or chapter_is_changed() == True or is_load_pressed == False):
-        
-        verse_history_text = ""
         
         scripture = get_json_scripture(
             selected_version,
@@ -452,7 +451,7 @@ def next_display_pressed(props, prop):
 def add_verse_to_history(props):
     global verse_history_text
     
-    verse_history_text += f"{loaded_book} {loaded_chapter}:{selected_verse}"
+    verse_history_text += f"{loaded_book} {loaded_chapter}:{selected_verse}\n"
     
     obs.obs_data_set_string(
         script_settings, 
