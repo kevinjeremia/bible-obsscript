@@ -47,7 +47,10 @@ def script_update(settings):
     global text_source_name
     global title_source_name
     
-    selected_version = obs.obs_data_get_string(settings, "bibleversion")
+    
+    versions = {"Terjemahan Baru" : "tb", "New King James Version" : "nkjv", "New International Version" : "niv", "New English Translation" : "net", "Authorized Version" : "av"}
+    
+    selected_version = versions[obs.obs_data_get_string(settings, "bibleversion")]
     selected_book = obs.obs_data_get_string(settings, "book")
     selected_chapter = obs.obs_data_get_int(settings, "chapter")
     selected_verse = obs.obs_data_get_int(settings, "verse")
@@ -472,8 +475,7 @@ def add_verse_to_history(props):
 def script_description():
     return """A script to show Bible scriptures.
 By KevinJP
-
-Versions: Terjemahan Baru (tb), New King James Version (nkjv), New International Version (niv), New English Translation (net), Authorized Version (av)"""
+"""
 
 
 def script_properties():
@@ -526,7 +528,7 @@ def script_properties():
     )
     
     # Add bible version to placeholder list by iterating versions list
-    versions = ["tb", "nkjv", "niv", "net", "av"]
+    versions = ["Terjemahan Baru", "New King James Version", "New International Version", "New English Translation", "Authorized Version"]
     
     for version in versions:
         obs.obs_property_list_add_string(
