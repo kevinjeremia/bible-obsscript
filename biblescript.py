@@ -30,6 +30,7 @@ def script_load(settings):
     global is_load_pressed
     global loaded_book
     global verse_history_text
+    global loaded_version
     
     is_load_pressed = False
     script_settings = settings
@@ -37,6 +38,7 @@ def script_load(settings):
     
     # When the script is loaded, the loaded book is null.
     loaded_book = 'null'
+    loaded_version = 'null'
        
 # Function that will be called when the script's settings have been changed
 def script_update(settings):
@@ -295,7 +297,15 @@ def update_prev_next_desc(props):
             next_display_prop, 
             f"Next Display ({next_index+1})"
         )
-
+        
+def version_is_changed() -> bool:
+    is_version_changed = False
+    
+    if loaded_version != selected_version:
+        is_version_changed = True
+    
+    return is_version_changed
+    
 # Will return True when the book is changed
 def book_is_changed() -> bool:
     is_book_changed = False
@@ -324,6 +334,7 @@ def load_pressed(props, prop):
     global selected_verse
     global verse_loaded # The list of verse from get_verse()
     global current_index
+    global loaded_version
     global loaded_book
     global loaded_chapter
     global is_load_pressed
@@ -333,7 +344,7 @@ def load_pressed(props, prop):
     # This conditional statement will allow the script to not fetch verse
     # from API everytime the user press load button and the user just change
     # the verse, but the chapter isn't changed.
-    if (book_is_changed() == True or chapter_is_changed() == True or is_load_pressed == False):
+    if (version_is_changed() == True or book_is_changed() == True or chapter_is_changed() == True or is_load_pressed == False):
         
         scripture = get_json_scripture(
             selected_version,
@@ -344,6 +355,7 @@ def load_pressed(props, prop):
         scripture.pop()
         
         is_load_pressed = True
+        loaded_version = selected_version
         loaded_book = selected_book
         loaded_chapter = selected_chapter
 
@@ -357,7 +369,7 @@ def load_pressed(props, prop):
         
     
     # Will set the selected_verse to the max of total verse on the selected chapter
-    # if selected_verse exceed it
+    # If selected_verse exceed it
     if selected_verse > len(verse_loaded) :
         selected_verse = len(verse_loaded)
         obs.obs_data_set_int(
