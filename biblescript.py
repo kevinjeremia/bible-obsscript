@@ -43,9 +43,6 @@ def script_load(settings):
 # Function that will be called when the script's settings have been changed
 def script_update(settings):
     global selected_version
-    global selected_book
-    global selected_chapter
-    global selected_verse
     global text_source_name
     global title_source_name
     
@@ -53,9 +50,6 @@ def script_update(settings):
     versions = {"Terjemahan Baru" : "tb", "New King James Version" : "nkjv", "New International Version" : "niv", "New English Translation" : "net", "Authorized Version" : "av"}
     
     selected_version = versions[obs.obs_data_get_string(settings, "bibleversion")]
-    selected_book = obs.obs_data_get_string(settings, "book")
-    selected_chapter = obs.obs_data_get_int(settings, "chapter")
-    selected_verse = obs.obs_data_get_int(settings, "verse")
     
     text_source_name = obs.obs_data_get_string(settings, "textsource")
     title_source_name = obs.obs_data_get_string(settings, "titlesource")
@@ -323,7 +317,24 @@ def chapter_is_changed() -> bool:
         is_chapter_changed = True
     
     return is_chapter_changed
-        
+
+def update_selected():
+    global selected_book
+    global selected_chapter
+    global selected_verse
+    
+    selected_split = obs.obs_data_get_string(script_settings, "verse").lower().split()
+    
+    if len(selected_split) == 3:
+        selected_book = selected_split[0] + selected_split[1]
+        chapter_verse_split = selected_split[2].split(":")
+    else:
+        selected_book = selected_split[0]
+        chapter_verse_split = selected_split[1].split(":")
+    
+    selected_chapter = chapter_verse_split[0]
+    selected_chapter = chapter_verse_split[1]
+    
 
 # When Load Verses button is pressed, function get_json_scripture will be called
 # and will display the preview of the whole chapter and particular selected verse. 
@@ -338,6 +349,8 @@ def load_pressed(props, prop):
     global loaded_book
     global loaded_chapter
     global is_load_pressed
+    
+    update_selected()
     
     current_index = 0 # Current index of preview verse (start from 0)
     
@@ -580,7 +593,7 @@ def script_properties():
     # Add placeholder list for verse
     verse_placeholder = obs.obs_properties_add_int(
         props,
-        "verse",
+        "verse_input",
         "Verse:",
         1, # min
         176, # max
@@ -589,7 +602,7 @@ def script_properties():
     
     verse_ph = obs.obs_properties_add_text(
         props,
-        "verseinput",
+        "verse",
         "Verse:",
         obs.OBS_TEXT_DEFAULT
     )
