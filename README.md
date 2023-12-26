@@ -1,11 +1,15 @@
 # Bible OBS Script
 
 OBS Script to show bible scriptures that is fetched from Alkitab-API (by [sonnylazuardi](https://github.com/sonnylazuardi/alkitab-api))
-<img src="screen.png" alt="The Script" width="500" height="auto">
-## Installation
 
-- Install BeautifulSoup python package
+<img src="screen.png" alt="The Script" width="350" height="auto">
+
+## Installation
+- Install python3
 - Install requests python package
+  ```zsh
+  pip install requests
+  ```
 - Download biblescript.py
 - On OBS top bar, click Tools and then click Scripts
 - Click the plus sign to add the script, and locate the biblescript.py, then click Open
