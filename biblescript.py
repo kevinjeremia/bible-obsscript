@@ -18,7 +18,6 @@
 # A script to show Bible scriptures that is fetched from Alkitab-API (by sonnylazuardi)
 
 import obspython as obs
-from bs4 import BeautifulSoup
 import requests
 import textwrap
 
@@ -56,27 +55,91 @@ def script_update(settings):
     
 # Fetch the list of the book in the Bible from the url below
 # and will return list of the book
-def parse_book() -> list:
-    url = "https://alkitab.sabda.org/advanced.php"
-    response = requests.get(url)
-    html_content = response.content
-
-    soup = BeautifulSoup(html_content, "html.parser")
-    form_bible = soup.find("select", {"name": "book"})
-    # Fetch the <option> tag
-    books = form_bible.contents 
-    # Remove "\n" from the list 
-    books_updated = [book for book in books if book != "\n"]
-
-    list_book = []
-    for book in books_updated:
-        list_book += book.contents
-    # Remove all the whitespaces because of the AlkitabAPI is sensitive to whitespaces 
-    list_book = [book.replace(' ', '') if ' ' in book else book for book in list_book]        
+def fetch_book(parsed_book) -> str:
+    book_dict = {'kej': 'Kejadian', 
+                'kel': 'Keluaran', 
+                'ima': 'Imamat',
+                'bil': 'Bilangan',
+                'ula': 'Ulangan',
+                'yos': 'Yosua',
+                'hak': 'Hakim-hakim',
+                'rut': 'Rut', 
+                '1sam': '1Samuel',
+                '2sam': '2Samuel',
+                '1raj': '1Raja-raja',
+                '2raj': '2Raja-raja',
+                '1taw': '1Tawarikh',
+                '2taw': '2Tawarikh',
+                'ezr': 'Ezra',
+                'neh': 'Nehemia',
+                'est': 'Ester',
+                'ayu': 'Ayub',
+                'ayb': 'Ayub',
+                'maz': 'Mazmur',
+                'ams': 'Amsal',
+                'pkh': 'Pengkhotbah',
+                'pen': 'Pengkhotbah',
+                'peng': 'Pengkhotbah',
+                'kid': 'KidungAgung',
+                'yes': 'Yesaya',
+                'yer': 'Yeremia',
+                'rat': 'Ratapan',
+                'yeh': 'Yehezkiel',
+                'dan': 'Daniel',
+                'hos': 'Hosea',
+                'yoe': 'Yoel',
+                'amo': 'Amos',
+                'oba': 'Obaja',
+                'yun': 'Yunus',
+                'mik': 'Mikha',
+                'nah': 'Nahum',
+                'hab': 'Habakuk',
+                'zef': 'Zefanya',
+                'hag': 'Hagai',
+                'zak': 'Zakharia',
+                'mal': 'Maleakhi',
+                'mat': 'Matius',
+                'mar': 'Markus',
+                'mark': 'Markus',
+                'luk': 'Lukas',
+                'yoh': 'Yohanes',
+                'kis': 'Kisah',
+                'rom': 'Roma',
+                '1kor': '1Korintus',
+                '2kor': '2Korintus',
+                'gal': 'Galatia',
+                'efe': 'Efesus',
+                'fil': 'Filipi',
+                'fili': 'Filipi',
+                'filip': 'Filipi',
+                'kol': 'Kolose',
+                '1tes': '1Tesalonika',
+                '2tes': '2Tesalonika',
+                '1tim': '1Timotius',
+                '2tim': '2Timotius',
+                'tit': 'Titus',
+                'flm': 'Filemon',
+                'file': 'Filemon',
+                'filem': 'Filemon',
+                'ibr': 'Ibrani',
+                'ibra': 'Ibrani',
+                'yak': 'Yakobus',
+                'yako': 'Yakobus',
+                '1pet': '1Petrus',
+                '2pet': '2Petrus',
+                '1yoh': '1Yohanes',
+                '2yoh': '2Yohanes',
+                '3yoh': '3Yohanes',
+                'yud': 'Yudas', 
+                'wah': 'Wahyu'
+                }
     
-    list_book[43] = 'Kisah'
+    if parsed_book in book_dict:
+        selected_book = book_dict[parsed_book]
+    else:
+        selected_book = parsed_book
     
-    return list_book
+    return selected_book.capitalize()
 
 # Fetch the json of the selected chapter
 def get_json_scripture(version,book,chapter):
@@ -326,14 +389,15 @@ def update_selected():
     selected_split = obs.obs_data_get_string(script_settings, "verse").lower().split()
     
     if len(selected_split) == 3:
-        selected_book = selected_split[0] + selected_split[1]
+        parse_book = selected_split[0] + selected_split[1]
+        selected_book = fetch_book(parse_book)
         chapter_verse_split = selected_split[2].split(":")
     else:
-        selected_book = selected_split[0]
+        selected_book = fetch_book(selected_split[0])
         chapter_verse_split = selected_split[1].split(":")
     
-    selected_chapter = chapter_verse_split[0]
-    selected_chapter = chapter_verse_split[1]
+    selected_chapter = int(chapter_verse_split[0])
+    selected_verse = int(chapter_verse_split[1])
     
 
 # When Load Verses button is pressed, function get_json_scripture will be called
@@ -408,10 +472,10 @@ def prev_verse_pressed(props, prop):
     
     if selected_verse > 1:
         selected_verse -= 1
-        obs.obs_data_set_int(
+        obs.obs_data_set_string(
             script_settings,
             "verse",
-            selected_verse)
+            f"{selected_book} {selected_chapter}:{selected_verse}")
         
     
     add_preview_verse(props)
@@ -434,10 +498,10 @@ def next_verse_pressed(props,prop):
     
     if selected_verse < len(verse_loaded):
         selected_verse += 1
-        obs.obs_data_set_int(
+        obs.obs_data_set_string(
             script_settings,
             "verse",
-            selected_verse)
+            f"{selected_book} {selected_chapter}:{selected_verse}")
     
     add_preview_verse(props)
     
@@ -542,7 +606,27 @@ def script_properties():
                     name
                 )				
     obs.source_list_release(sources)
-  
+    
+    # Maximum characters per line that will be displayed
+    max_width = obs.obs_properties_add_int(
+        props,
+        "maxwidth",
+        "Width (Chars):",
+        20, # min
+        100, # max
+        1 # iter
+    )
+    
+    # Maximum line that will be displayed
+    max_line = obs.obs_properties_add_int(
+        props,
+        "maxline",
+        "Height (Lines):",
+        1, # min
+        12,# max
+        1 # iter 
+    )
+    
     # Add a placeholder list of bible version
     versions_ph = obs.obs_properties_add_list(
         props,
@@ -561,44 +645,6 @@ def script_properties():
             version,
             version
         )
-    
-    # Add a placeholder list for the book of the bible
-    book_ph = obs.obs_properties_add_list(
-        props,
-        "book",
-        "Book:",
-        obs.OBS_COMBO_TYPE_EDITABLE,
-        obs.OBS_COMBO_FORMAT_STRING
-    )
-    
-    # Add list of book to the placeholder by iterating book_list
-    book_list = parse_book()
-    for book in book_list:
-        obs.obs_property_list_add_string(
-            book_ph,
-            book,
-            book
-        )
-        
-    # Add a input field for the chapter 
-    chapter_ph = obs.obs_properties_add_int(
-        props,
-        "chapter",
-        "Chapter:",
-        1, # min
-        150, # max
-        1 # iter
-    )
-    
-    # Add placeholder list for verse
-    verse_placeholder = obs.obs_properties_add_int(
-        props,
-        "verse_input",
-        "Verse:",
-        1, # min
-        176, # max
-        1 # iter
-    )
     
     verse_ph = obs.obs_properties_add_text(
         props,
@@ -670,24 +716,5 @@ def script_properties():
         "Verse History:",
         obs.OBS_TEXT_MULTILINE
     )
-    
-    # Maximum characters per line that will be displayed
-    max_width = obs.obs_properties_add_int(
-        props,
-        "maxwidth",
-        "Width (Chars):",
-        15, # min
-        70, # max
-        1 # iter
-    )
-    
-    # Maximum line that will be displayed
-    max_line = obs.obs_properties_add_int(
-        props,
-        "maxline",
-        "Height (Lines):",
-        1, # min
-        12,# max
-        1 # iter 
-    )
+
     return props
