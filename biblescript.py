@@ -449,10 +449,10 @@ def load_pressed(props, prop):
     # If selected_verse exceed it
     if selected_verse > len(verse_loaded) :
         selected_verse = len(verse_loaded)
-        obs.obs_data_set_int(
+        obs.obs_data_set_string(
             script_settings,
             "verse",
-            selected_verse)
+            f"{selected_book} {selected_chapter}:{selected_verse}")
     
     add_preview_verse(props)
     
