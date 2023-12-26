@@ -578,13 +578,20 @@ def script_properties():
     )
     
     # Add placeholder list for verse
-    verse_ph = obs.obs_properties_add_int(
+    verse_placeholder = obs.obs_properties_add_int(
         props,
         "verse",
         "Verse:",
         1, # min
         176, # max
         1 # iter
+    )
+    
+    verse_ph = obs.obs_properties_add_text(
+        props,
+        "verseinput",
+        "Verse:",
+        obs.OBS_TEXT_DEFAULT
     )
     
     # Load the bible verses
