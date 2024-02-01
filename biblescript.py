@@ -138,6 +138,7 @@ def fetch_book(parsed_book) -> str:
         selected_book = book_dict[parsed_book]
     else:
         selected_book = parsed_book
+        
     
     return selected_book.capitalize()
 
@@ -386,15 +387,17 @@ def update_selected():
     global selected_chapter
     global selected_verse
     
+    # Split the loaded verse with space as its delimitter
     selected_split = obs.obs_data_get_string(script_settings, "verse").lower().split()
     
+    # If selected_split contains 3 elements, it means that the book prefix is numeric
     if len(selected_split) == 3:
-        parse_book = selected_split[0] + selected_split[1]
+        parse_book = selected_split[0] + selected_split[1].capitalize()
         selected_book = fetch_book(parse_book)
-        chapter_verse_split = selected_split[2].split(":")
+        chapter_verse_split = selected_split[2].split(":") # Split the chapter and the verse
     else:
-        selected_book = fetch_book(selected_split[0])
-        chapter_verse_split = selected_split[1].split(":")
+        selected_book = fetch_book(selected_split[0]).capitalize()
+        chapter_verse_split = selected_split[1].split(":") # Split the chapter and the verse
     
     selected_chapter = int(chapter_verse_split[0])
     selected_verse = int(chapter_verse_split[1])
