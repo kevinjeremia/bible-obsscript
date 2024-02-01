@@ -138,9 +138,8 @@ def fetch_book(parsed_book) -> str:
         selected_book = book_dict[parsed_book]
     else:
         selected_book = parsed_book
-        
     
-    return selected_book.capitalize()
+    return selected_book
 
 # Fetch the json of the selected chapter
 def get_json_scripture(version,book,chapter):
