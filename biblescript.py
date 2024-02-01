@@ -387,17 +387,45 @@ def update_selected():
     global selected_verse
     
     # Split the loaded verse with space as its delimitter
-    selected_split = obs.obs_data_get_string(script_settings, "verse").lower().split()
+    selected_split = obs.obs_data_get_string(script_settings, "verse").split()
+    parse_book = ""
     
-    # If selected_split contains 3 elements, it means that the book prefix is numeric
+    # If selected_split contains 3 elements, it means that the user enter the book which
+    # has numeric prefix with space. Ex: "1 Raj 2:3"
+    # User can enter it without space between the book prefix. Ex: "1raj 2:3"
+    # or even without space at all. Ex: "1raj2:3".
+    # If user enter forgot add space between the book and the chapter
+    # Ex: "1 raj2:3". It will still read the parse_book as "1raj" 
     if len(selected_split) == 3:
-        parse_book = selected_split[0] + selected_split[1].capitalize()
-        selected_book = fetch_book(parse_book)
+        parse_book = selected_split[0] + selected_split[1].lower()
         chapter_verse_split = selected_split[2].split(":") # Split the chapter and the verse
-    else:
-        selected_book = fetch_book(selected_split[0]).capitalize()
+    elif len(selected_split) == 2:
+        # Will capitalize book that the first char isn't numeric 
+        if selected_split[1][0].isalpha():
+            chapter_and_verse = ""
+            for c in selected_split[1]:
+                if c.isalpha():
+                    selected_split[0] += c
+                else:
+                    chapter_and_verse += c
+            selected_split[1] = chapter_and_verse 
+        parse_book = selected_split[0].lower()
         chapter_verse_split = selected_split[1].split(":") # Split the chapter and the verse
+    else:
+        user_prompt = selected_split[0]
+        max_num = 2 if user_prompt[0].isnumeric() else 1
+        chapter_and_verse = ""
+        
+        # Parse the user prompt into parse_book and chapter_and_verse
+        for c in user_prompt:
+            if max_num > 1 or c.isalpha():
+                parse_book += c.lower()
+                max_num -= 1
+            else:
+             chapter_and_verse += c
+        chapter_verse_split = chapter_and_verse.split(":") # Split the chapter and the verse
     
+    selected_book = fetch_book(parse_book)
     selected_chapter = int(chapter_verse_split[0])
     selected_verse = int(chapter_verse_split[1])
     
