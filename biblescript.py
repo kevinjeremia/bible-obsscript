@@ -43,6 +43,7 @@ def script_load(settings):
 def script_update(settings):
     global selected_version
     global text_source_name
+    global big_text_source_name
     global title_source_name
     
     
@@ -51,6 +52,7 @@ def script_update(settings):
     selected_version = versions[obs.obs_data_get_string(settings, "bibleversion")]
     
     text_source_name = obs.obs_data_get_string(settings, "textsource")
+    big_text_source_name = obs.obs_data_get_string(settings, "bigtextsource")
     title_source_name = obs.obs_data_get_string(settings, "titlesource")
     
 # Fetch the list of the book in the Bible from the url below
@@ -228,10 +230,13 @@ def add_preview_chapter(props):
 # Show how the verse will be displayed (Add displayed verse to the field)
 def add_preview_verse(props):
     global final_displayed_verse
+    global big_verse
     
     # Get the max width and line
     width = obs.obs_data_get_int(script_settings, "maxwidth")
     line = obs.obs_data_get_int(script_settings, "maxline")
+    
+    big_line = obs.obs_data_get_int(script_settings, "maxlinebig")
     
     if (width < 15 | line < 1):
         width = 15
@@ -240,6 +245,8 @@ def add_preview_verse(props):
     # Wrap the verse (putting them into list)
     wrapper = textwrap.TextWrapper(width=width)
     wrapped_verse_list = wrapper.wrap(text = verse_loaded[selected_verse - 1])
+    
+    big_verse = ""
 
     # Combine the wrapped verse into one string
     displayed_verse_text = ""
@@ -256,7 +263,7 @@ def add_preview_verse(props):
             display_counter += 1
         elif (line_counter > 0 and line_counter < line):
             displayed_verse_text += "\n"
-            
+        big_verse += f"{verse}\n"
         displayed_verse_text += verse
         line_counter -= 1
         
@@ -281,8 +288,15 @@ def add_preview_verse(props):
 
 # Update the title source with the selected scripture
 def update_title_source():
+    global selected_book
     source = obs.obs_get_source_by_name(title_source_name)
+    not_num_title = selected_book[1:]
     if source is not None:
+        if selected_book[0].isnumeric():
+            selected_book = f"{selected_book[0]} {not_num_title.strip().capitalize()}"
+        else:
+            selected_book = selected_book.capitalize()
+            
         title = f"{selected_book} {selected_chapter}:{selected_verse}"
         settings = obs.obs_data_create()
         obs.obs_data_set_string(settings, "text", title)
@@ -300,6 +314,22 @@ def update_text_source(final_displayed_verse):
     source = obs.obs_get_source_by_name(text_source_name)
     if source is not None:
         verse = final_displayed_verse[current_index] # Current index of preview verse (start from 0)
+        settings = obs.obs_data_create()
+        obs.obs_data_set_string(settings, "text", verse)
+        
+        # Update text source
+        obs.obs_source_update(source, settings)
+        
+        obs.obs_data_release(settings)
+
+    obs.obs_source_release(source)
+    
+# Update the text verse with the selected verse
+def update_big_text_source(final_displayed_verse):
+    
+    source = obs.obs_get_source_by_name(big_text_source_name)
+    if source is not None:
+        verse = big_verse
         settings = obs.obs_data_create()
         obs.obs_data_set_string(settings, "text", verse)
         
@@ -490,6 +520,8 @@ def load_pressed(props, prop):
     
     update_text_source(final_displayed_verse)
     
+    update_big_text_source(big_verse)
+    
     update_prev_next_desc(props)
     
     return True
@@ -605,7 +637,7 @@ def script_properties():
     text_source = obs.obs_properties_add_list(
         props,
         "textsource",
-        "Text Source",
+        "Text Source (Small)",
         obs.OBS_COMBO_TYPE_LIST,
         obs.OBS_COMBO_FORMAT_STRING
     )
@@ -615,7 +647,16 @@ def script_properties():
         "Title Source",
         obs.OBS_COMBO_TYPE_LIST,
         obs.OBS_COMBO_FORMAT_STRING
-    )	
+    )
+    
+    big_text_source = obs.obs_properties_add_list(
+        props,
+        "bigtextsource",
+        "Text Source (Big)",
+        obs.OBS_COMBO_TYPE_LIST,
+        obs.OBS_COMBO_FORMAT_STRING
+    )		
+    
     sources = obs.obs_enum_sources()
     if sources is not None:
         n = list()
@@ -627,6 +668,11 @@ def script_properties():
         for name in n:
                 obs.obs_property_list_add_string(
                     text_source,
+                    name,
+                    name
+                )
+                obs.obs_property_list_add_string(
+                    big_text_source,
                     name,
                     name
                 )
@@ -651,7 +697,7 @@ def script_properties():
     max_line = obs.obs_properties_add_int(
         props,
         "maxline",
-        "Height (Lines):",
+        "Height Small (Lines):",
         1, # min
         12,# max
         1 # iter 
