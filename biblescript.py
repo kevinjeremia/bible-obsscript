@@ -546,6 +546,8 @@ def prev_verse_pressed(props, prop):
     
     update_text_source(final_displayed_verse)
     
+    update_big_text_source(big_verse)
+    
     update_prev_next_desc(props)
     
     return True
@@ -570,6 +572,9 @@ def next_verse_pressed(props,prop):
     update_title_source()
     
     update_text_source(final_displayed_verse)
+    
+    update_big_text_source(big_verse)
+
     
     update_prev_next_desc(props)
     
